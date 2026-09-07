@@ -15,51 +15,36 @@ jobs:
 
     strategy:
       fail-fast: false
+
       matrix:
         include:
 
-          # -------------------------
-          # Linux x86_64
-          # -------------------------
           - name: Linux x86_64
-            os: ubuntu-latest
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             binary: vrand
             asset: vrand-linux-x86_64
 
-          # -------------------------
-          # Linux ARM64
-          # -------------------------
           - name: Linux ARM64
-            os: ubuntu-latest
+            os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
             binary: vrand
             asset: vrand-linux-aarch64
-            cross: true
 
-          # -------------------------
-          # Windows x86_64
-          # -------------------------
           - name: Windows x86_64
-            os: windows-latest
+            os: windows-2025
             target: x86_64-pc-windows-msvc
             binary: vrand.exe
             asset: vrand-windows-x86_64.exe
 
-          # -------------------------
-          # macOS x86_64
-          # -------------------------
           - name: macOS x86_64
-            os: macos-13
+            os: macos-15-intel
             target: x86_64-apple-darwin
             binary: vrand
             asset: vrand-macos-x86_64
 
-          # -------------------------
-          # macOS ARM64
-          # -------------------------
           - name: macOS ARM64
-            os: macos-14
+            os: macos-15
             target: aarch64-apple-darwin
             binary: vrand
             asset: vrand-macos-aarch64
@@ -74,18 +59,8 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      # Only needed for Linux ARM64 cross compilation.
-      - name: Install ARM64 Linux toolchain
-        if: matrix.cross == true
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
-
-      - name: Build
-        env:
-          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
-        run: |
-          cargo build --release --target ${{ matrix.target }}
+      - name: Build VRAND
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Prepare release asset
         shell: bash
@@ -95,7 +70,7 @@ jobs:
           cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" \
              "release/${{ matrix.asset }}"
 
-      - name: Upload artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset }}
@@ -104,7 +79,7 @@ jobs:
   release:
     name: Create GitHub Release
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
 
