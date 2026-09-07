@@ -1,0 +1,17 @@
+[package]
+name = "vrand"
+version = "0.1.0"
+edition = "2021"
+description = "VRAND - publicly verifiable randomness derived from live public data streams"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["clock"] }
+clap = { version = "4", features = ["derive"] }
+futures-util = "0.3"
+hex = "0.4"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream"] }
+sha2 = "0.10"
+tokio = { version = "1", features = ["full"] }
